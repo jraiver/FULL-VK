@@ -107,14 +107,7 @@ namespace fullvk.Methods.All
 								Console.SetCursorPosition(0, top);
 								BackLine.Clear();
 
-								string fileName = "";
-								if (TypeMedia == MediaType.Video || TypeMedia == MediaType.Audio)
-									fileName = FileName(list[i]);
-								else if (TypeMedia == MediaType.Photo)
-								{
-									var uriii = new Uri(list[i].url);
-									fileName = new Uri(list[i].url).ToString();
-								}
+								string fileName = FileName(list[i]);
 
 
 								PrintConsole.Print($"Скачивается: {fileName}\n", MenuType.Custom,
@@ -192,7 +185,8 @@ namespace fullvk.Methods.All
 								Console.SetCursorPosition(0, i + count);
 							}
 
-							PrintConsole.Print("\n\nСкачивание файлов завершено.", MenuType.InfoHeader);
+
+							PrintConsole.Print("\nСкачивание файлов завершено.", MenuType.InfoHeader);
 							Process.Start(folder.SelectedPath);
 						}
 						else if (result == DialogResult.Cancel)

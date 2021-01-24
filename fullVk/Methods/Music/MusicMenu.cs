@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using VkNet;
 using VkNet.Enums.SafetyEnums;
+using VkNet.Model;
 using static fullvk.MainData;
 using static fullvk.TextConsole;
 
@@ -21,16 +22,16 @@ namespace fullvk.Methods.Music
 		/// </summary>
 		/// <param name="task">Задача</param>
 		/// <param name="cts">Токен</param>
-		
+
 		public static void Menu()
 		{
 			int profileNum = ChoiseProfile();
 			if (profileNum == -1)
 				return;
-			
+
 
 			VkApi api = Profiles.GetUser(profileNum).API;
-
+			Start:
 			while (true)
 			{
 				var menuList = new List<string>() { "Моя музыка", "Рекомендации", "Указать ссылку", "Последние", "Из сообщений", "Со стены" };
@@ -45,7 +46,7 @@ namespace fullvk.Methods.Music
 						switch (subPos)
 						{
 							case 1:
-								
+
 								Prepare(new AnyData.Data()
 								{
 									api = api,
@@ -64,8 +65,8 @@ namespace fullvk.Methods.Music
 								});
 								break;
 							case 3:
-								var trackListFromPlaylists =  Get.GetPlaylists(api);
-								var trackList = Get.GetList(new AnyData.Data() {api = api});
+								var trackListFromPlaylists = Get.GetPlaylists(api);
+								var trackList = Get.GetList(new AnyData.Data() { api = api });
 								var fullList = trackListFromPlaylists.Concat(trackList).ToArray();
 								Prepare(new AnyData.Data()
 								{
@@ -75,21 +76,25 @@ namespace fullvk.Methods.Music
 									id = api.UserId
 								});
 								break;
-								
+
 							case -1:
 								break;
 						}
 
-						
+
 						break;
 					case 2:
 						AnyData.Data data = RecMenu(api);
-						PrintConsole.Header(data.SubName);
-						Prepare(data);
+						if (data != null)
+						{
+							PrintConsole.Header(data.SubName);
+							Prepare(data);
+						}
+						else goto Start;
 						break;
 
 					case 3:
-						GetFromUrl:
+					GetFromUrl:
 						PrintConsole.Header(HeaderName);
 						PrintConsole.Print("[0] - Назад", MenuType.Back);
 						PrintConsole.Print($"Введите ссылку:  ", MenuType.Input);
@@ -127,22 +132,25 @@ namespace fullvk.Methods.Music
 							Prepare(new AnyData.Data()
 							{
 								mType = MediaType.Audio,
-								mediaList = media, api = api, SubName = $"Из беседы {(string)media[0].other}", type = Get.GetType.Recommendation
+								mediaList = media,
+								api = api,
+								SubName = $"Из беседы {(string)media[0].other}",
+								type = Get.GetType.Recommendation
 							}, true);
-				
+
 						break;
 					case 6:
 						GetDataFromBoard(api);
 						break;
 					case -1:
 						return;
-					
+
 				}
 			}
 		}
 
 
-	
+
 
 		public static void GetDataFromBoard(VkApi api)
 		{
@@ -212,13 +220,13 @@ namespace fullvk.Methods.Music
 										mType = MediaType.Audio,
 										mediaList = result,
 										api = api,
-										SubName = $"Со стены {gMenu.GetCurrentName(menuList[pos - 1])}" ,
+										SubName = $"Со стены {gMenu.GetCurrentName(menuList[pos - 1])}",
 										type = Get.GetType.Recommendation
 									}, true);
 									break;
 							}
 
-							
+
 						}
 						else if (pos == LastChoise.Count())
 							LastChoise.Clear();
@@ -255,7 +263,7 @@ namespace fullvk.Methods.Music
 				};
 			}
 
-			MediaListReady:
+		MediaListReady:
 			Get.Track[] trackList = null;
 
 			while (true)
@@ -263,7 +271,7 @@ namespace fullvk.Methods.Music
 				if (data.mType == null)
 					data.mType = MediaType.Audio;
 
-				var menuList = new List<string>() { "Все", "Выбрать"};
+				var menuList = new List<string>() { "Все", "Выбрать" };
 				int pos = gMenu.Menu(menuList, $"Музыка {data.SubName}");
 
 				switch (pos)
@@ -301,7 +309,7 @@ namespace fullvk.Methods.Music
 								};
 							}
 
-							SubMenu(new AnyData.Data() { audios = trackList, api = data.api, type = data.type, mType = data.mType,SubName = data.SubName, mediaList = mList });
+							SubMenu(new AnyData.Data() { audios = trackList, api = data.api, type = data.type, mType = data.mType, SubName = data.SubName, mediaList = mList });
 						}
 						else
 						{
@@ -312,9 +320,9 @@ namespace fullvk.Methods.Music
 								mList[q] = (data.mediaList as ChoiseMedia.Media[])[audioList[q]];
 							}
 
-							SubMenu(new AnyData.Data() { audios = trackList, api = data.api, type = data.type,SubName = data.SubName, mType = data.mType, mediaList = mList });
+							SubMenu(new AnyData.Data() { audios = trackList, api = data.api, type = data.type, SubName = data.SubName, mType = data.mType, mediaList = mList });
 						}
-						
+
 						break;
 					case -1:
 						return;
@@ -339,7 +347,7 @@ namespace fullvk.Methods.Music
 
 			while (true)
 			{
-				var menuList = new List<string>() { "Скачать", "Плейлист", "Список"};
+				var menuList = new List<string>() { "Скачать", "Плейлист", "Список" };
 				int pos = gMenu.Menu(menuList, $"{HeaderName}");
 
 				switch (pos)
@@ -353,7 +361,7 @@ namespace fullvk.Methods.Music
 					case 3:
 						TrackListTxt(data);
 						break;
-						
+
 					case -1:
 						PrintConsole.Header(HeaderName);
 						return;

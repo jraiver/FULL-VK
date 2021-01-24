@@ -53,7 +53,7 @@ namespace fullvk.Methods.Dialogs
 					images[images.Length - 1] = new ChoiseMedia.Media()
 					{
 						url = value,
-						name = name.Substring(1, name.Length - 1)
+						name = name.Substring(1, name.Length - 1), duration = "IMG"
 					};
 
 				}

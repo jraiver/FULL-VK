@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
 using System.Linq;
+using System.Management;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -424,11 +425,27 @@ namespace fullvk.Methods.Music
 				if (id == null)
 					id = vkApi.UserId;
 
-				VkCollection<Audio> audio = vkApi.Audio.Get(new AudioGetParams
+				int offset = 0;
+
+				VkNet.Model.Attachments.Audio[] trackList = new VkNet.Model.Attachments.Audio[0]; 
+
+				while (true)
 				{
-					OwnerId = id
-				});
-				return audio;
+					var next = vkApi.Audio.Get(new AudioGetParams
+					{
+						OwnerId = id,
+						Count = 1000,
+						Offset = offset
+					});
+
+					if (next.Count == 0)
+						break;
+					Array.Resize(ref trackList, trackList.Length + next.Count );
+					next.CopyTo(trackList, trackList.Length - next.Count );
+					offset += 1000;
+				}
+
+				return new VkCollection<Audio>(ulong.Parse(trackList.Length.ToString()), new VkCollection<Audio>(ulong.Parse(trackList.Length.ToString()), trackList));
 			}
 			catch (VkNet.Exception.CannotBlacklistYourselfException ex)
 			{
