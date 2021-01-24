@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Flurl;
 using Flurl.Util;
 using fullvk.Methods.All;
 using VkNet;
@@ -34,7 +36,8 @@ namespace fullvk.Methods.Dialogs
 				out nextFrom
 			);
 
-			string [] images = new string[0];
+			ChoiseMedia.Media[] images = new ChoiseMedia.Media[0];
+		//	
 
 			for (int i = 0; i < Attachments.Count; i++)
 			{
@@ -42,12 +45,22 @@ namespace fullvk.Methods.Dialogs
 				if (image.OwnerId != api.UserId)
 				{
 					Array.Resize(ref images, images.Length + 1);
-					images[images.Length - 1] = (Attachments[i].Attachment.Instance as VkNet.Model.Attachments.Photo)
-						.Sizes.Last().Url.ToString();
+					var value = (Attachments[i].Attachment.Instance as VkNet.Model.Attachments.Photo).Sizes.Last().Url
+						.ToString();
+					var name = new Regex(@"[\S]+(.jpg)").Match(value).Value;
+					name = name.Substring(name.LastIndexOf("/") + 1, name.Length - name.LastIndexOf("/") - 1);
+
+					images[images.Length - 1] = new ChoiseMedia.Media()
+					{
+						url = value,
+						name = name.Substring(1, name.Length - 1)
+					};
+
 				}
 			}
-			
-				
+
+			Download.DownloadStart(images, MediaType.Photo);
+
 
 		}
 	}

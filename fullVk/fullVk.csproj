@@ -246,7 +246,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemClasses\apiClass.cs" />
-    <Compile Include="SystemClasses\Authorization.cs" />
     <Compile Include="SystemClasses\checkToken.cs" />
     <Compile Include="TextConsole.cs" />
   </ItemGroup>

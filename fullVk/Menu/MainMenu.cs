@@ -10,7 +10,7 @@ namespace fullvk.Menu
 		{
 			while (true)
 			{
-				var menuList = new List<string>() { "Действия с профилем", "Узнать город", "Музыка", "Видеозаписи", "Диалоги", "Посты от пользователя", "Сохранить контент пользователя"};
+				var menuList = new List<string>() { "Действия с профилем", "Узнать город", "Музыка", "Видеозаписи", "Диалоги", "Посты от пользователя"};
 				int pos = gMenu.Menu(menuList, $"FULL VK");
 
 				switch (pos)
@@ -34,9 +34,7 @@ namespace fullvk.Menu
 					case 6:
 						FindPostsFunc.Search();
 						break;
-					case 7:
-						Relation.Start();
-						break;
+
 						
 					case -1:
 						return;

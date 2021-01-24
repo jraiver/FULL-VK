@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -65,11 +66,13 @@ namespace fullvk.Methods.All
 			string type = "";
 			string FileFullPath = "";
 
+
 			if (TypeMedia == MediaType.Audio)
 				type = "mp3";
 			else if (TypeMedia == MediaType.Video)
 				type = "mp4";
-
+			else if (TypeMedia == MediaType.Photo)
+				type = "jpg";
 			try
 			{
 				string HeaderName = "Скачивание медиа";
@@ -103,17 +106,29 @@ namespace fullvk.Methods.All
 							{
 								Console.SetCursorPosition(0, top);
 								BackLine.Clear();
-								PrintConsole.Print($"Скачивается: {FileName(list[i])}\n", MenuType.Custom,
+
+								string fileName = "";
+								if (TypeMedia == MediaType.Video || TypeMedia == MediaType.Audio)
+									fileName = FileName(list[i]);
+								else if (TypeMedia == MediaType.Photo)
+								{
+									var uriii = new Uri(list[i].url);
+									fileName = new Uri(list[i].url).ToString();
+								}
+
+
+								PrintConsole.Print($"Скачивается: {fileName}\n", MenuType.Custom,
 									ConsoleColor.DarkGray);
 
 								Console.SetCursorPosition(0, i + count);
 								Console.ForegroundColor = ConsoleColor.DarkMagenta;
-								Console.WriteLine($"[{i + 1}] {FileName(list[i])}");
+								Console.WriteLine($"[{i + 1}] {fileName}");
 
 								Console.ResetColor();
 								SpeedMeter = new Stopwatch();
 								SpeedMeter.Start();
-
+								if (i ==  list.Length)
+									return;
 								downloader.DownloadProgressChanged +=
 									delegate(object sender, DownloadProgressChangedEventArgs e)
 									{
@@ -177,7 +192,7 @@ namespace fullvk.Methods.All
 								Console.SetCursorPosition(0, i + count);
 							}
 
-							PrintConsole.Print("\nСкачивание файлов завершено.", MenuType.InfoHeader);
+							PrintConsole.Print("\n\nСкачивание файлов завершено.", MenuType.InfoHeader);
 							Process.Start(folder.SelectedPath);
 						}
 						else if (result == DialogResult.Cancel)
