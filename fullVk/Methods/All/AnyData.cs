@@ -8,7 +8,7 @@ namespace fullvk.Methods.All
 	{
 		public class Data
 		{
-			public Get.GetType type { get; set; } = Get.GetType.Profile;
+			public Get.Type type { get; set; } = Get.Type.Profile;
 			public MediaType mType { get; set; }
 			public string SubName { get; set; }
 			public Get.Track[] audios { get; set; }

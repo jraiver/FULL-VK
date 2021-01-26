@@ -230,7 +230,7 @@ namespace fullvk.Methods.Page
 			int i = 0;
 			var list = Get.GetList(new AnyData.Data()
 			{
-				api = user.API, id = long.Parse(user.id), type = Get.GetType.Profile, audios = null 
+				api = user.API, id = long.Parse(user.id), type = Get.Type.Profile, audios = null 
 
 			});
 

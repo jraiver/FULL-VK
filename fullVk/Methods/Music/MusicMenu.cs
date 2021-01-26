@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Flurl.Util;
 using VkNet;
 using VkNet.Enums.SafetyEnums;
 using VkNet.Model;
+using VkNet.Model.RequestParams;
 using static fullvk.MainData;
 using static fullvk.TextConsole;
 
@@ -31,7 +33,7 @@ namespace fullvk.Methods.Music
 
 
 			VkApi api = Profiles.GetUser(profileNum).API;
-			Start:
+		Start:
 			while (true)
 			{
 				var menuList = new List<string>() { "Моя музыка", "Рекомендации", "Указать ссылку", "Последние", "Из сообщений", "Со стены" };
@@ -84,13 +86,115 @@ namespace fullvk.Methods.Music
 
 						break;
 					case 2:
-						AnyData.Data data = RecMenu(api);
-						if (data != null)
+						var response = Get.GetCategoriesInRecommended(api).response;
+
+						//Удаляем ненужные категории
+						var temp = response.items;
+						for (int i = 0; i < response.items.Length; i++)
 						{
-							PrintConsole.Header(data.SubName);
-							Prepare(data);
+							if (response.items[i].source.IndexOf("recoms_communities") != 0 && response.items[i].source.IndexOf("recoms_friends") != 0)
+							{
+								Array.Resize(ref temp, temp.Length + 1);
+								temp[temp.Length - 1] = response.items[i];
+							}
 						}
-						else goto Start;
+
+						response.items = temp;
+
+						while (true)
+						{
+							var recCat = new List<string>()
+							{
+								$"Категории [{response.items.Length}]", $"Группы [{response.groups.Length}]", $"Пользователи [{response.profiles.Length}]"
+							};
+							int recCatPos = gMenu.Menu(recCat, "Рекомендации");
+
+							switch (recCatPos)
+							{
+								case 1:
+									var menuRec = new List<string>() { };
+									for (int i = 0; i < response.items.Length; i++)
+										menuRec.Add($"{response.items[i].title} [{response.items[i].count}]");
+									while (true)
+									{
+										int cPos = gMenu.Menu(menuRec.ToList(), "Категории");
+
+										switch (cPos)
+										{
+											default:
+												var result = Get.GetTrackListFromRec(api, response.items[cPos - 1]);
+
+												if (result != null && result.Length > 0)
+												{
+													Prepare(new AnyData.Data()
+													{
+														api = api,
+														audios = result,
+														SubName = response.items[cPos - 1].title
+													});
+												}
+
+												break;
+											case -1:
+												return;
+										}
+									}
+
+									break;
+								case 2:
+									var menuGroups = new List<string>() { };
+									for (int i = 0; i < response.groups.Length; i++)
+										menuGroups.Add($"{response.groups[i].name}");
+
+									while (true)
+									{
+										int cPos = gMenu.Menu(menuGroups.ToList(), "Группы");
+										switch (cPos)
+										{
+											default:
+												Prepare(new AnyData.Data()
+												{
+													api = api,
+													audios = Get.GetAudio(api, response.groups[cPos - 1].id * -1),
+													SubName = response.groups[cPos - 1].name,
+													id = response.groups[cPos - 1].id
+												});
+
+												break;
+											case -1:
+												return;
+										}
+									}
+
+									break;
+								case 3:
+									var menuUsers = new List<string>() { };
+									for (int i = 0; i < response.profiles.Length; i++)
+										menuUsers.Add($"{response.profiles[i].first_name} {response.profiles[i].last_name}");
+
+									while (true)
+									{
+										int cPos = gMenu.Menu(menuUsers.ToList(), "Пользователи");
+										switch (cPos)
+										{
+											default:
+												Prepare(new AnyData.Data()
+												{
+													api = api,
+													audios = Get.GetAudio(api, response.profiles[cPos - 1].id),
+													SubName = $"{response.profiles[cPos - 1].first_name} {response.profiles[cPos - 1].last_name}" ,
+													id = response.profiles[cPos - 1].id
+												});
+
+												break;
+											case -1:
+												return;
+										}
+									}
+								case -1:
+									return;
+							}
+						}
 						break;
 
 					case 3:
@@ -135,7 +239,7 @@ namespace fullvk.Methods.Music
 								mediaList = media,
 								api = api,
 								SubName = $"Из беседы {(string)media[0].other}",
-								type = Get.GetType.Recommendation
+								type = Get.Type.Recommendation
 							}, true);
 
 						break;
@@ -162,7 +266,7 @@ namespace fullvk.Methods.Music
 				mediaList = result,
 				api = api,
 				SubName = "Со стены",
-				type = Get.GetType.Recommendation
+				type = Get.Type.Recommendation
 			}, true);
 
 
@@ -221,7 +325,7 @@ namespace fullvk.Methods.Music
 										mediaList = result,
 										api = api,
 										SubName = $"Со стены {gMenu.GetCurrentName(menuList[pos - 1])}",
-										type = Get.GetType.Recommendation
+										type = Get.Type.Recommendation
 									}, true);
 									break;
 							}
@@ -393,49 +497,6 @@ namespace fullvk.Methods.Music
 			proc.Start();
 		}
 
-		static AnyData.Data RecMenu(VkApi api)
-		{
-			var menuList = new List<string>() {
-				"Специально для Вас",
-				"Новинки",
-				"Новые альбомы",
-				"Чарт ВКонтакте",
-				"Рэп & Хип-Хоп",
-				"Поп",
-				"Рок",
-				"Недавно прослушанные",
-				"Музыка под настроение",
-				"Выбор редакции",
-				"Музыкальные подборки",
-				"На любой случай",
-				"Новые имена",
-				"Похоже на прослушанное",
-				"Сообщества"
-			};
-
-
-			while (true)
-			{
-				int pos = gMenu.Menu(menuList.ToList(), $"Рекомендации");
-
-				switch (pos)
-				{
-					case -1:
-						return null;
-					case 0:
-						goto case -1;
-					default:
-						return new AnyData.Data()
-						{
-							audios = Get.GetPopular(api, menuList.ElementAt(pos - 1)),
-							SubName = menuList.ElementAt(pos - 1),
-							type = Get.GetType.Recommendation,
-							api = api
-						};
-				}
-
-			}
-		}
 
 		public static PopularMusic.Audio[] PlayListMenu(PopularMusic.Playlist[] list, string name, VkApi api)
 		{
@@ -460,7 +521,7 @@ namespace fullvk.Methods.Music
 					case -1:
 						return null;
 					default:
-						Prepare(new AnyData.Data() { audios = Get.GetPlaylist(list[pos - 1], api), api = api, type = Get.GetType.Recommendation, SubName = list[pos - 1].title });
+						Prepare(new AnyData.Data() { audios = Get.GetPlaylist(list[pos - 1], api), api = api, type = Get.Type.Recommendation, SubName = list[pos - 1].title });
 
 						break;
 				}

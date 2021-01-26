@@ -35,8 +35,6 @@ namespace fullvk
 		[STAThread]
 		static void Main()
 		{
-			
-
 			Console.Title = Application.ProductName;
 			CenterScreen();
 

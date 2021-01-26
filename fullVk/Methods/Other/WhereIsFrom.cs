@@ -131,10 +131,6 @@ namespace fullvk.Methods
 					total += city.Value;
 				}
 
-				//Console.SetCursorPosition(0, 1);
-			//	PrintConsole.Print($"Проверено {total} пользователей.", MenuType.InfoHeader);
-		
-				
 				PrintConsole.Print($"  [{data["Не указан"]}] Не указан", MenuType.Custom);
 			}
 			catch (KeyNotFoundException ex)

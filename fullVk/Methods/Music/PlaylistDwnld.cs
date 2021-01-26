@@ -24,7 +24,7 @@ namespace fullvk.Methods.Music
 
 			switch (data.type)
 			{
-				case Music.Get.GetType.Profile:
+				case Music.Get.Type.Profile:
 					if (data.id < 0)
 					{
 						var group = data.api.Groups.GetById(null, (0 - data.id).ToString(), null).FirstOrDefault();
@@ -36,7 +36,7 @@ namespace fullvk.Methods.Music
 						name = $"[PL] {user.FirstName} {user.LastName}";
 					}
 					break;
-				case Music.Get.GetType.Recommendation:
+				case Music.Get.Type.Recommendation:
 					name = $"[PL] {data.SubName} ";
 					break;
 			}

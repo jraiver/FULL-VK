@@ -209,7 +209,7 @@ namespace fullvk.Methods.Page
 				PrintConsole.Header($"{header}\n");
 
 				var list = Get.GetList(new AnyData.Data()
-				{ api = user.API, id = userId, type = Get.GetType.Profile, audios = null });
+				{ api = user.API, id = userId, type = Get.Type.Profile, audios = null });
 
 				Track[] toWrite = new Track[list.Length];
 

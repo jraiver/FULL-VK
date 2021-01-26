@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Management;
+using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,9 +19,10 @@ namespace fullvk.Methods.Music
 {
 	class Get
 	{
-		public enum GetType
+		public enum Type
 		{
 			Profile,
+			Group,
 			Popular,
 			Recommendation
 		}
@@ -79,10 +81,10 @@ namespace fullvk.Methods.Music
 			CancellationTokenSource cts = new CancellationTokenSource();
 			Task<ChoiseMedia.Media[]> fromboard = null;
 			fromboard = new Task<ChoiseMedia.Media[]>(() => Get.FromBoard(api, cts.Token, pageId), cts.Token);
-			
+
 
 			return Cancel(fromboard, cts);
-			
+
 		}
 
 		/// <summary>
@@ -118,7 +120,7 @@ namespace fullvk.Methods.Music
 				string FoundPosts = "";
 				ulong offset = 0;
 
-				for (;;)
+				for (; ; )
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 					TextConsole.PrintConsole.Header(HeaderName);
@@ -140,9 +142,9 @@ namespace fullvk.Methods.Music
 					if (Walls.WallPosts.Count == 0)
 					{
 						TextConsole.PrintConsole.Header(HeaderName);
-						TextConsole.PrintConsole.Print($"Найдено {audioList.Length} треков.",TextConsole.MenuType.InfoHeader);
+						TextConsole.PrintConsole.Print($"Найдено {audioList.Length} треков.", TextConsole.MenuType.InfoHeader);
 						TextConsole.PrintConsole.Print($"Для продолжения нажмите любую кнопку.");
-		break;
+						break;
 					}
 
 					for (int h = 0; h < Walls.WallPosts.Count; h++)
@@ -190,7 +192,7 @@ namespace fullvk.Methods.Music
 
 			switch (data.type)
 			{
-				case GetType.Profile:
+				case Type.Profile:
 					var audios = GetAudio(data.id, data.api);
 					TextConsole.PrintConsole.Print($"Получено {audios.Count} треков.\n",
 						TextConsole.MenuType.InfoHeader);
@@ -200,63 +202,78 @@ namespace fullvk.Methods.Music
 
 					return ToList(audios);
 
-				case GetType.Popular:
+				case Type.Popular:
 					var popular = ToList(data.api.Audio.GetPopular());
 					TextConsole.PrintConsole.Print($"Получено {popular.Length} треков.\n",
 						TextConsole.MenuType.InfoHeader);
-					return popular;
 
-				case GetType.Recommendation:
+					if (popular == null)
+						return null;
+					return popular;
+				case Type.Group:
+					var audiosFromGroup = GetAudio(data.id, data.api);
+					TextConsole.PrintConsole.Print($"Получено {audiosFromGroup.Count} треков.\n",
+						TextConsole.MenuType.InfoHeader);
+
+					if (audiosFromGroup == null)
+						return null;
+
+					return ToList(audiosFromGroup);
+					break;
+					
+				case Type.Recommendation:
 					var rec = ToList(data.api.Audio.GetRecommendations(null, data.id));
 					TextConsole.PrintConsole.Print($"Получено {rec.Length} треков.\n", TextConsole.MenuType.InfoHeader);
-					return rec;
 
+					if (rec == null)
+						return null;
+					return rec;
 			}
 
 			return null;
 		}
-
+		
 		/// <summary>
-		/// Получить список популярной музыки
+		/// Получить категории
 		/// </summary>
 		/// <param name="api"></param>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		public static Track[] GetPopular(VkApi api, string type)
+		public static PopularMusic.Rootobject GetCategoriesInRecommended(VkApi api)
 		{
 			var parameters = new VkParameters();
 			parameters.Add("v", "5.103");
 			parameters.Add("lang", "ru");
 			parameters.Add("extended", "1");
 			parameters.Add("access_token", api.Token);
-			parameters.Add("count", "20");
+			parameters.Add("count", "100");
 			parameters.Add("fields", "first_name_gen, photo_100");
+			parameters.Add("name_case", "gen");
 
 			var resp = api.Invoke("audio.getCatalog", parameters);
-			var deserialized = JsonConvert.DeserializeObject<PopularMusic.Rootobject>(resp);
 
-			for (int i = 0; i < deserialized.response.items.Length; i++)
-			{
-				if (string.Compare(type, deserialized.response.items[i].title) == 0)
-				{
-					while (true)
-					{
-						var task = GetById(api, deserialized.response.items[i].id);
+			return JsonConvert.DeserializeObject<PopularMusic.Rootobject>(resp);
+		}
 
-						var data = JsonConvert.DeserializeObject<PopularMusic.Rootobject>(task);
+		/// <summary>
+		/// Получить список трэков из выбранного блока рекомендаций 
+		/// </summary>
+		/// <param name="api"></param>
+		/// <param name="item">Блок</param>
+		/// <returns>Список треков</returns>
+		public static Track[] GetTrackListFromRec(VkApi api, PopularMusic.Item item)
+		{
+			var json = GetById(api, item.id);
 
-						if (data.response.block.playlists != null)
-							MusicMenu.PlayListMenu(data.response.block.playlists, data.response.block.title, api);
-						else
-							return ToList(data.response.block.audios);
+			var data = JsonConvert.DeserializeObject<PopularMusic.Rootobject>(json);
 
-					}
-				}
-			}
+			if (data.response.block.playlists != null)
+				MusicMenu.PlayListMenu(data.response.block.playlists, data.response.block.title, api);
+			else
+				return ToList(data.response.block.audios);
 
 			return null;
 		}
 
+		
 		/// <summary>
 		/// Получить список аудиозаписей по ID каталога
 		/// </summary>
@@ -313,8 +330,8 @@ namespace fullvk.Methods.Music
 		static Track[] ToList(VkCollection<Audio> audios)
 		{
 			Track[] trackList = new Track[0];
-		
-			for (int i = 0; i < (int) audios.Count; i++)
+
+			for (int i = 0; i < (int)audios.Count; i++)
 			{
 				Array.Resize(ref trackList, trackList.Length + 1);
 
@@ -323,7 +340,7 @@ namespace fullvk.Methods.Music
 					name = audios[i].Title,
 					artist = audios[i].Artist,
 					url = GetCurrentUrl(audios[i].Url),
-					duration = GlobalFunctions.CurrentDuration(audios[(int) i].Duration),
+					duration = GlobalFunctions.CurrentDuration(audios[(int)i].Duration),
 					HQ = audios[i].IsHq,
 					id = audios[i].Id,
 					owner_id = audios[i].OwnerId
@@ -403,22 +420,33 @@ namespace fullvk.Methods.Music
 			{
 				if (ex.GetType().FullName.IndexOf("VkNet.Exception.CannotBlacklistYourselfException") > -1)
 				{
-					TextConsole.PrintConsole.Print($"Не удаётся получить доступ к плейлисту: [{pl.Title}]" , TextConsole.MenuType.Warning);
+					TextConsole.PrintConsole.Print($"Не удаётся получить доступ к плейлисту: [{pl.Title}]", TextConsole.MenuType.Warning);
 				}
 
 				return null;
 			}
-			
+
 		}
 
+		/// <summary>
+		/// Получтиь преобразованный список аудиозаписей 
+		/// </summary>
+		/// <param name="api"></param>
+		/// <param name="id"></param>
+		/// <returns>Track[]</returns>
+		public static Track[] GetAudio(VkApi api, long? id)
+		{
+			return ToList(GetAudio(id, api));
+		}
 
 		/// <summary>
 		/// Получить список аудиозаписей
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="vkApi"></param>
+		/// <param name="count">Количество</param>
 		/// <returns></returns>
-		public static VkCollection<Audio> GetAudio(long? id, VkApi vkApi)
+		public static VkCollection<Audio> GetAudio(long? id, VkApi vkApi, int count = 1000)
 		{
 			try
 			{
@@ -427,22 +455,23 @@ namespace fullvk.Methods.Music
 
 				int offset = 0;
 
-				VkNet.Model.Attachments.Audio[] trackList = new VkNet.Model.Attachments.Audio[0]; 
+				VkNet.Model.Attachments.Audio[] trackList = new VkNet.Model.Attachments.Audio[0];
 
 				while (true)
 				{
 					var next = vkApi.Audio.Get(new AudioGetParams
 					{
 						OwnerId = id,
-						Count = 1000,
+						Count = count,
 						Offset = offset
 					});
-
+					if (count == 0)
+						return next;
 					if (next.Count == 0)
 						break;
-					Array.Resize(ref trackList, trackList.Length + next.Count );
-					next.CopyTo(trackList, trackList.Length - next.Count );
-					offset += 1000;
+					Array.Resize(ref trackList, trackList.Length + next.Count);
+					next.CopyTo(trackList, trackList.Length - next.Count);
+					offset += count;
 				}
 
 				return new VkCollection<Audio>(ulong.Parse(trackList.Length.ToString()), new VkCollection<Audio>(ulong.Parse(trackList.Length.ToString()), trackList));
@@ -521,7 +550,7 @@ namespace fullvk.Methods.Music
 				out nextFrom
 			);
 			ChoiseMedia.Media[] AttachmentsList = new ChoiseMedia.Media[0];
-			
+
 			for (int i = 0; i < Attachments.Count; i++)
 			{
 				Array.Resize(ref AttachmentsList, AttachmentsList.Length + 1);
@@ -529,7 +558,7 @@ namespace fullvk.Methods.Music
 				{
 					url = GetCurrentUrl((Attachments[i].Attachment.Instance as Audio).Url),
 					duration = GlobalFunctions.CurrentDuration(
-						(int) (Attachments[i].Attachment.Instance as Audio).Duration),
+						(int)(Attachments[i].Attachment.Instance as Audio).Duration),
 					name = $"{(Attachments[i].Attachment.Instance as Audio).Artist} - {(Attachments[i].Attachment.Instance as Audio).Title}"
 				};
 
@@ -547,7 +576,7 @@ namespace fullvk.Methods.Music
 				else
 				{
 					AttachmentsList[0].other = "c " + q.Profiles.First().FirstNameIns + " " +
-					                           q.Profiles.First().LastNameIns;
+											   q.Profiles.First().LastNameIns;
 				}
 			}
 
@@ -589,7 +618,7 @@ namespace fullvk.Methods.Music
 				var trackList = Get.GetPlaylist(playlists[index], api);
 				if (trackList == null)
 					continue;
-			
+
 				for (int i = 0; i < trackList.Length; i++)
 				{
 					if (trackList[i].url == null)
