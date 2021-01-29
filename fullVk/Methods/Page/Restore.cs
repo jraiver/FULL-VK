@@ -66,7 +66,7 @@ namespace fullvk.Methods.Page
 				if (customPath != null && customPath.Length == 0)
 					return false;
 
-				var data = JsonConvert.DeserializeObject<Backup.Music.Track[]>(Read(user.id, "Music", customPath));
+				var data = JsonConvert.DeserializeObject<Backup.Music.Track[]>(Read(user.GetId().ToString(), "Music", customPath));
 				int error = 0;
 
 				cancellationToken = new CancellationTokenSource();
@@ -84,7 +84,7 @@ namespace fullvk.Methods.Page
 
 						try
 						{
-							user.API.Audio.Add(data[totalRestore].id.Value, data[totalRestore].owner_id.Value);
+							user.GetApi().Audio.Add(data[totalRestore].id.Value, data[totalRestore].owner_id.Value);
 						}
 						catch (Exception ex)
 						{
@@ -142,7 +142,7 @@ namespace fullvk.Methods.Page
 					return false;
 
 
-				Backup.Groups.Data[] groups = JsonConvert.DeserializeObject<Backup.Groups.Data[]>(Read(user.id, "Groups", customPath));
+				Backup.Groups.Data[] groups = JsonConvert.DeserializeObject<Backup.Groups.Data[]>(Read(user.GetId().ToString(), "Groups", customPath));
 
 				cancellationToken = new CancellationTokenSource();
 				STOP = Task.Run(() => General.Cancel(cancellationToken), cancellationToken.Token);
@@ -156,7 +156,7 @@ namespace fullvk.Methods.Page
 						PrintConsole.Print($"Восстановлено {i} из {groups.Length} сообществ.", MenuType.InfoHeader);
 						try
 						{
-							user.API.Groups.Join(groups[i].id);
+							user.GetApi().Groups.Join(groups[i].id);
 						}
 						catch (Exception ex)
 						{

@@ -41,7 +41,7 @@ namespace fullvk.Menu
 			while (true)
 			{
 				var menuList = new List<string>() { "Очистить страницу", "Бэкап","Восстановить","Показать токен","Удалить из программы" };
-				int pos = gMenu.Menu(menuList, user.first_name + " " + user.last_name);
+				int pos = gMenu.Menu(menuList, user.GetName());
 
 				switch (pos)
 				{
@@ -55,8 +55,8 @@ namespace fullvk.Menu
 						Restore.Menu(user);
 						break;
 					case 4:
-						TextConsole.PrintConsole.Header($"{user.first_name} {user.last_name} [{user.id}]");
-						TextConsole.PrintConsole.Print($"Токен: {user.API.Token} ");
+						TextConsole.PrintConsole.Header($"{user.GetName()} [{user.GetId()}]");
+						TextConsole.PrintConsole.Print($"Токен: {user.GetApi().Token} ");
 						TextConsole.BackLine.Continue();
 						break;
 					case 5:

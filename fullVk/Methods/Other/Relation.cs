@@ -13,7 +13,7 @@ namespace fullvk.Methods
 			if (profileNum == -1)
 				return;
 
-			VkApi api = MainData.Profiles.GetUser(profileNum).API;
+			VkApi api = MainData.Profiles.GetUser(profileNum).GetApi();
 
 			string HeaderName = "Поиск общих друзей между пользователями";
 			PrintConsole.Header(HeaderName);

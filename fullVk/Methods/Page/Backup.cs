@@ -84,16 +84,16 @@ namespace fullvk.Methods.Page
 				string header = "Сохранить список групп";
 				while (true)
 				{
-					var menuList = new List<string>() { $"{user.first_name} {user.last_name}", "Выбрать пользователя" };
+					var menuList = new List<string>() { $"{user.GetName()}", "Выбрать пользователя" };
 					int pos = gMenu.Menu(menuList, header);
 
 					switch (pos)
 					{
 						case 1:
-							userId = user.API.UserId;
+							userId = user.GetApi().UserId;
 							goto Start;
 						case 2:
-							userId = ChoiseUser(user.API, header);
+							userId = ChoiseUser(user.GetApi(), header);
 							if (userId != null)
 								goto Start;
 							break;
@@ -109,7 +109,7 @@ namespace fullvk.Methods.Page
 
 				for (int q = 0; ;)
 				{
-					groups = user.API.Groups.Get(new GroupsGetParams()
+					groups = user.GetApi().Groups.Get(new GroupsGetParams()
 					{
 						UserId = userId,
 						Extended = true,
@@ -186,16 +186,16 @@ namespace fullvk.Methods.Page
 				string header = "Сохранить список аудиозаписей";
 				while (true)
 				{
-					var menuList = new List<string>() { $"{user.first_name} {user.last_name}", "Выбрать пользователя" };
+					var menuList = new List<string>() { $"{user.GetName()}", "Выбрать пользователя" };
 					int pos = gMenu.Menu(menuList, header);
 
 					switch (pos)
 					{
 						case 1:
-							userId = user.API.UserId;
+							userId = user.GetApi().UserId;
 							goto Start;
 						case 2:
-							userId = ChoiseUser(user.API, header);
+							userId = ChoiseUser(user.GetApi(), header);
 							if (userId != null)
 								goto Start;
 							break;
@@ -209,7 +209,7 @@ namespace fullvk.Methods.Page
 				PrintConsole.Header($"{header}\n");
 
 				var list = Get.GetList(new AnyData.Data()
-				{ api = user.API, id = userId, type = Get.Type.Profile, audios = null });
+				{ api = user.GetApi(), id = userId, type = Get.Type.Profile, audios = null });
 
 				Track[] toWrite = new Track[list.Length];
 

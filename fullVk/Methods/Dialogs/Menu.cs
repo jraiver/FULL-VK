@@ -20,7 +20,7 @@ namespace fullvk.Methods.Dialogs
 
 			string HeaderName = "Диалоги";
 
-			VkApi api = MainData.Profiles.GetUser(profileNum).API;
+			VkApi api = MainData.Profiles.GetUser(profileNum).GetApi();
 
 			while (true)
 			{

@@ -87,7 +87,7 @@ namespace fullvk.Methods.Page
 
 			foreach (var VARIABLE in q)
 			{
-				user.API.Messages.Send(new MessagesSendParams()
+				user.GetApi().Messages.Send(new MessagesSendParams()
 				{
 					UserId = VARIABLE,
 					Message = VARIABLE.ToString(),
@@ -101,7 +101,7 @@ namespace fullvk.Methods.Page
 
 			PrintConsole.Header(header);
 
-			var dialogs = user.API.Messages.GetConversations(new GetConversationsParams());
+			var dialogs = user.GetApi().Messages.GetConversations(new GetConversationsParams());
 
 			try
 			{
@@ -113,7 +113,7 @@ namespace fullvk.Methods.Page
 
 					try
 					{
-						user.API.Messages.DeleteConversation(dialogs.Items[i].Conversation.Peer.Id);
+						user.GetApi().Messages.DeleteConversation(dialogs.Items[i].Conversation.Peer.Id);
 					}
 					catch (Exception ex)
 					{
@@ -146,7 +146,7 @@ namespace fullvk.Methods.Page
 			string header = "Очистить стену";
 
 			PrintConsole.Header(header);
-			var posts = user.API.Wall.Get(new WallGetParams());
+			var posts = user.GetApi().Wall.Get(new WallGetParams());
 			int i = 0;
 
 			try
@@ -157,7 +157,7 @@ namespace fullvk.Methods.Page
 					PrintConsole.Header($"Удалено {i} из {posts.TotalCount} записей");
 					PrintConsole.Print("Для отмены нажмите [SPACE].", MenuType.Warning);
 
-					user.API.Wall.Delete(posts.WallPosts[i].OwnerId, posts.WallPosts[i].Id);
+					user.GetApi().Wall.Delete(posts.WallPosts[i].OwnerId, posts.WallPosts[i].Id);
 
 					cancellationToken.ThrowIfCancellationRequested();
 				}
@@ -197,7 +197,7 @@ namespace fullvk.Methods.Page
 					PrintConsole.Print($"Покинуто {i} сообществ из {list.Length}.", MenuType.InfoHeader);
 					PrintConsole.Print("Для отмены нажмите [SPACE].", MenuType.Warning);
 
-					user.API.Groups.Leave(list[i].id);
+					user.GetApi().Groups.Leave(list[i].id);
 
 					cancellationToken.ThrowIfCancellationRequested();
 				}
@@ -230,7 +230,7 @@ namespace fullvk.Methods.Page
 			int i = 0;
 			var list = Get.GetList(new AnyData.Data()
 			{
-				api = user.API, id = long.Parse(user.id), type = Get.Type.Profile, audios = null 
+				api = user.GetApi(), id = user.GetId(), type = Get.Type.Profile, audios = null 
 
 			});
 
@@ -242,7 +242,7 @@ namespace fullvk.Methods.Page
 					PrintConsole.Print($"Удалено {i} из {list.Length}.", MenuType.InfoHeader);
 					PrintConsole.Print("Для отмены нажмите [SPACE].", MenuType.Warning);
 
-					user.API.Audio.Delete(list[i].id.Value, list[i].owner_id.Value);
+					user.GetApi().Audio.Delete(list[i].id.Value, list[i].owner_id.Value);
 					cancellationToken.ThrowIfCancellationRequested();
 				}
 

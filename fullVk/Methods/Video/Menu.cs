@@ -21,7 +21,7 @@ namespace fullvk.Methods.Video
 
 			string HeaderName = "Видеозаписи";
 
-			VkApi api = MainData.Profiles.GetUser(profileNum).API;
+			VkApi api = MainData.Profiles.GetUser(profileNum).GetApi();
 
 			while (true)
 			{

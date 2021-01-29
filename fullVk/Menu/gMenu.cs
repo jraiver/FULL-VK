@@ -17,13 +17,9 @@ namespace fullvk.Menu
 			var backup = list.ToList();
 
 			ConsoleColor selected = ConsoleColor.Magenta;
-			ConsoleColor high = ConsoleColor.Green;
 			ConsoleColor selectedHigh = ConsoleColor.DarkMagenta;
 
 			TextConsole.PrintConsole.Header(header);
-
-			bool allHigh = false;
-
 			int control = 3;
 
 			for (int i = 0; i < list.Count; i++)

@@ -32,8 +32,7 @@ namespace fullvk.Methods.Music
 				return;
 
 
-			VkApi api = Profiles.GetUser(profileNum).API;
-		Start:
+			VkApi api = Profiles.GetUser(profileNum).GetApi();
 			while (true)
 			{
 				var menuList = new List<string>() { "Моя музыка", "Рекомендации", "Указать ссылку", "Последние", "Из сообщений", "Со стены" };
@@ -139,8 +138,6 @@ namespace fullvk.Methods.Music
 												return;
 										}
 									}
-
-									break;
 								case 2:
 									var menuGroups = new List<string>() { };
 									for (int i = 0; i < response.groups.Length; i++)
@@ -165,8 +162,6 @@ namespace fullvk.Methods.Music
 												return;
 										}
 									}
-
-									break;
 								case 3:
 									var menuUsers = new List<string>() { };
 									for (int i = 0; i < response.profiles.Length; i++)
@@ -195,8 +190,6 @@ namespace fullvk.Methods.Music
 									return;
 							}
 						}
-						break;
-
 					case 3:
 					GetFromUrl:
 						PrintConsole.Header(HeaderName);
@@ -208,7 +201,7 @@ namespace fullvk.Methods.Music
 						if (string.Compare(id, "0") == 0)
 							return;
 
-						long? _id = GlobalFunctions.GetID(id, Profiles.GetUser(profileNum).token);
+						long? _id = GlobalFunctions.GetID(id, Profiles.GetUser(profileNum).GetToken());
 
 						if (_id == null)
 							goto GetFromUrl;
@@ -280,7 +273,6 @@ namespace fullvk.Methods.Music
 			while (true)
 			{
 				PrintConsole.Header("Последние ссылки");
-				string menu = "";
 
 				if (LastChoise.Count() < 1)
 				{

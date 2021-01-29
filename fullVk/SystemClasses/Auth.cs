@@ -164,7 +164,6 @@ namespace fullvk.SystemClasses
 				PrintConsole.Header(Header);
 				PrintConsole.Print(ex.Message, MenuType.Warning);
 				goto Retry;
-				return;
 			}
 		}
 
@@ -202,19 +201,11 @@ namespace fullvk.SystemClasses
 		/// <summary>
 		/// Добавление нового пользователя
 		/// </summary>
-		/// <param name="token"></param>
 		static bool AuthSeccesfull(VkApi api)
 		{
 			var user = api.Account.GetProfileInfo();
 
-			MainData.Profiles.AddUser(new User()
-			{
-				token = api.Token,
-				first_name = user.FirstName,
-				last_name = user.LastName,
-				id = api.UserId.ToString()
-			});
-			object g = MainData.Profiles.GetAllUser();
+			MainData.Profiles.AddUser(new User(api, user.FirstName, user.LastName, api.Token, api.UserId.ToString()));
 
 			MainData.Profiles.RewriteUsers(MainData.Profiles.GetAllUser());
 			return true;

@@ -73,8 +73,6 @@ namespace fullvk
 							newCount = Console.WindowWidth - message.Length / 2;
 						}
 
-						float count = 6;
-
 						string border = "";
 						for (int i = 0; i < newCount; i++)
 							border += "=";

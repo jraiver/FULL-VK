@@ -26,8 +26,7 @@ namespace fullvk.Methods
 				PrintConsole.Print("[0] - Назад", MenuType.Back);
 				PrintConsole.Print("Введите ссылку на пользователя: ", MenuType.Input);
 
-				long? id = GlobalFunctions.GetID(Console.ReadLine(),MainData.Profiles.GetUser(profile).token);
-				//long? id = GlobalFunctions.GetID("https://vk.com/d.sharchekev", Profiles.UsersList[profile].token.AccT_VK);
+				long? id = GlobalFunctions.GetID(Console.ReadLine(),MainData.Profiles.GetUser(profile).GetToken());
 
 				if (id == null)
 					continue;
@@ -35,7 +34,7 @@ namespace fullvk.Methods
 				if (id == 0)
 					return;
 
-				GetFriends(id, MainData.Profiles.GetUser(profile).API);
+				GetFriends(id, MainData.Profiles.GetUser(profile).GetApi());
 
 				Console.ReadKey();
 			}

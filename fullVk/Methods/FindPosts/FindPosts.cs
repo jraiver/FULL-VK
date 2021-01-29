@@ -28,7 +28,7 @@ namespace fullvk.Methods
 				return;
 
 			string HeaderName = "Поиск постов пользователя";
-			VkApi api = Profiles.GetUser(profileNum).API;
+			VkApi api = Profiles.GetUser(profileNum).GetApi();
 
 			long? id ;
 

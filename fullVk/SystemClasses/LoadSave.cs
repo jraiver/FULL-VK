@@ -24,13 +24,11 @@ namespace fullvk.SystemClasses
 		{
 			try
 			{
-				User qw = null;
 				User[] toWrite = new User[Profiles.Count()];
 
 				for (int i = 0; i < Profiles.Count(); i++)
 				{
 					toWrite[i] = Profiles.GetUser(i).GetProtectedUser(cryptPass);
-					toWrite[i].API = null;
 				}
 
 				var FavoriteData = JsonConvert.SerializeObject(toWrite, Formatting.None, new JsonSerializerSettings
@@ -50,6 +48,14 @@ namespace fullvk.SystemClasses
 
 		}
 
+		class tUser
+		{
+			private string _fName { get; set; }
+			private string _lName { get; set; }
+			private string _id { get; set; }
+			private string _token { get; set; }
+		}
+		
 		/// <summary>
 		/// Загрузить пользователей
 		/// </summary>
@@ -62,7 +68,10 @@ namespace fullvk.SystemClasses
 				Auth.Login();
 				return false;
 			}
+
+			var fl = File.ReadAllText(path, Encoding.UTF8);
 			var Users = JsonConvert.DeserializeObject<User[]>(File.ReadAllText(path, Encoding.UTF8));
+			
 			if (Users == null)
 			{
 				Auth.Login();
@@ -74,12 +83,11 @@ namespace fullvk.SystemClasses
 				for (int i = 0; i < Users.Length; i++)
 				{
 					Users[i] = Users[i].GetDecryptUser(cryptPass);
-					//Clipboard.SetText(Users[i].token);
 
-					Users[i].API = Auth.AuthByToken(Users[i].token);
-					Users[i].id = Users[i].API.UserId.ToString();
+					Users[i].SetAPI(Auth.AuthByToken(Users[i].GetToken()));
+					Users[i].SetId(Users[i].GetApi().UserId.ToString());
 
-					if (Users[i].API == null)
+					if (Users[i].GetApi() == null)
 					{
 						Console.WriteLine("error read");
 					}

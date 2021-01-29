@@ -100,7 +100,6 @@ namespace fullvk.Methods.All
 						if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folder.SelectedPath))
 						{
 							downloader.DownloadFileCompleted += Downloader_DownloadFileCompleted;
-							string track = "";
 
 							for (int i = 0; i < list.Length; i++)
 							{

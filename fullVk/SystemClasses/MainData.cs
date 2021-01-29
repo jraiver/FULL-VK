@@ -3,11 +3,13 @@ using fullvk.SystemClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using VkNet;
+using VkNet.Model;
 
 namespace fullvk
 {
-	class MainData
+	internal class MainData
 	{
 		static Dictionary<long?, string> LChoise { get; set; } = new Dictionary<long?, string>();
 
@@ -86,9 +88,7 @@ namespace fullvk
 			/// </summary>
 			public static User GetUser(int i)
 			{
-				if (i == -1)
-					return null;
-				else if (i < 0 && i > UsersList.Length - 1)
+				if (i < 0 && i > UsersList.Length - 1)
 					return null;
 				return UsersList[i];
 			}
@@ -146,6 +146,7 @@ namespace fullvk
 				Auth.Login();
 				return 0;
 			}
+
 			else
 			{
 				var menuList = new List<string>() ;
@@ -153,7 +154,7 @@ namespace fullvk
 				for (int i = 0; i < Profiles.Count(); i++)
 				{
 					menuList.Add(
-						$"{Profiles.GetUser(i).first_name} {Profiles.GetUser(i).last_name} [{Profiles.GetUser(i).id}]");
+						$"{Profiles.GetUser(i).GetName()} [{Profiles.GetUser(i).GetId()}]");
 				}
 
 				menuList.Add("Добавить профиль");
@@ -191,13 +192,22 @@ namespace fullvk
 			return MemberwiseClone();
 		}
 
-		int GetId()
+		public User(VkApi api, string fName, string lName, string token, string id)
+		{
+			_id = id;
+			_fName = fName;
+			_lName = lName;
+			_token = token;
+			_api = api;
+		}
+		
+		int GetUserId()
 		{
 			User[] list = MainData.Profiles.GetAllUser();
 
 			for (int i = 0; i < MainData.Profiles.Count(); i++)
 			{
-				if (string.Compare(id, MainData.Profiles.GetUser(i).id) == 0)
+				if (string.Compare(_id, MainData.Profiles.GetUser(i)._id) == 0)
 					return i;
 			}
 
@@ -208,10 +218,14 @@ namespace fullvk
 		/// Удалить пользователя
 		/// </summary>
 
+		public void SetId(string id) => _id = id;
+
+		public void SetAPI(VkApi api) => _api = api;
+		
 		public void Delete()
 		{
 			User[] list = MainData.Profiles.GetAllUser();
-			int ProfileId = GetId();
+			int ProfileId = GetUserId();
 
 			for (int i = ProfileId; i < list.Length; i++)
 			{
@@ -224,6 +238,8 @@ namespace fullvk
 			Array.Resize(ref list, list.Length - 1);
 
 			MainData.Profiles.RewriteUsers(list);
+			if (MainData.Profiles.Count() == 0)
+				Auth.Login();
 		}
 
 		/// <summary>
@@ -234,17 +250,13 @@ namespace fullvk
 		public User GetProtectedUser(string key)
 		{
 			User user = Clone() as User;
-			user.id = "0";
-
-			User UserToCrypt = new User()
-			{
-				first_name = Crypt.EncryptStringAES(user.first_name, key),
-				last_name = Crypt.EncryptStringAES(user.last_name, key),
-				id = Crypt.EncryptStringAES(user.id, key),
-				token = Crypt.EncryptStringAES(user.token, key)
-			};
-
-			return UserToCrypt;
+			user._id = "0";
+			user._api = null;
+			return new User(null,fName: Crypt.EncryptStringAES(user._fName, key), 
+				lName: Crypt.EncryptStringAES(user._lName, key), 
+				Crypt.EncryptStringAES(user._token, key), 
+				Crypt.EncryptStringAES(user._id, key)
+			);;
 
 		}
 
@@ -257,25 +269,58 @@ namespace fullvk
 		{
 			User user = Clone() as User;
 
-			User EncryptedUser = new User()
-			{
-				first_name = Crypt.DecryptStringAES(user.first_name, key),
-				last_name = Crypt.DecryptStringAES(user.last_name, key),
-				id = Crypt.DecryptStringAES(user.id, key),
-				token = Crypt.DecryptStringAES(user.token, key)
-			};
-			return EncryptedUser;
+			return new User(null,Crypt.DecryptStringAES(user._fName, key), 
+				Crypt.DecryptStringAES(user._lName, key),
+				Crypt.DecryptStringAES(user._token, key),
+				Crypt.DecryptStringAES(user._id, key)
+				);
 		}
 
-		#region Class
+		/// <summary>
+		/// Имя пользователя
+		/// </summary>
+		/// <returns>Имя и фамилию</returns>
+		public string GetName() => $"{_fName} {_lName}";
 
-		public string id { get; set; }
-		public string first_name { get; set; }
-		public string last_name { get; set; }
+		/// <summary>
+		/// Токен
+		/// </summary>
+		/// <returns>Токен </returns>
+		public string GetToken() => _token;
 
-		public string token { get; set; }
+		/// <summary>
+		/// ID пользователя 
+		/// </summary>
+		/// <returns>ID</returns>
+		public long? GetId()
+		{
+			long? id = long.Parse(_id);
+			if (_api.UserId == null)
+				return id;
+			else return _api.UserId;
+		}
 
-		public VkApi API { get; set; }
+		/// <summary>
+		/// VkApi пользователя
+		/// </summary>
+		/// <returns>VkApi</returns>
+		public VkApi GetApi() => _api;
+		
+		#region Var
+
+		[JsonProperty]
+		string _id { get; set; }
+		
+		[JsonProperty]
+		string _fName { get; set; }
+		
+		[JsonProperty]
+		string _lName { get; set; }
+		
+		[JsonProperty]
+		string _token { get; set; }
+		
+		VkApi _api { get; set; }
 
 		#endregion
 	}

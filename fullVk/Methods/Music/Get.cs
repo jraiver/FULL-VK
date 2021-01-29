@@ -117,7 +117,6 @@ namespace fullvk.Methods.Music
 					return null;
 				}
 
-				string FoundPosts = "";
 				ulong offset = 0;
 
 				for (; ; )
@@ -219,8 +218,7 @@ namespace fullvk.Methods.Music
 						return null;
 
 					return ToList(audiosFromGroup);
-					break;
-					
+
 				case Type.Recommendation:
 					var rec = ToList(data.api.Audio.GetRecommendations(null, data.id));
 					TextConsole.PrintConsole.Print($"Получено {rec.Length} треков.\n", TextConsole.MenuType.InfoHeader);
