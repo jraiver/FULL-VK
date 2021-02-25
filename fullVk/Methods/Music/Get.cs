@@ -539,14 +539,7 @@ namespace fullvk.Methods.Music
 
 			string nextFrom = "";
 
-			var Attachments = api.Messages.GetHistoryAttachments(
-				new MessagesGetHistoryAttachmentsParams()
-				{
-					PeerId = ConvID,
-					MediaType = MediaType.Audio
-				},
-				out nextFrom
-			);
+			var Attachments = Dialogs.Get.GetDialogsAttachments(api, HeaderName, MediaType.Audio);
 			ChoiseMedia.Media[] AttachmentsList = new ChoiseMedia.Media[0];
 
 			for (int i = 0; i < Attachments.Count; i++)

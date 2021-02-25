@@ -97,7 +97,19 @@ namespace fullvk.SystemClasses
 			}
 
 			catch (Exception ex)
-			{ 
+			{
+				if (ex.GetType() == typeof(VkNet.AudioBypassService.Exceptions.VkAuthException))
+				{
+					var except = ex as VkNet.AudioBypassService.Exceptions.VkAuthException;
+					switch (except.AuthError.ErrorType)
+					{
+						case "username_or_password_is_incorrect":
+
+							PrintConsole.Header(Header);
+							PrintConsole.Print(ex.Message, MenuType.Error);
+							return;
+					}
+				}
 				if (ex.Message.IndexOf("Two-factor authorization required") > -1)
 				{
 					AuthWith_2fa(login, password);

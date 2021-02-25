@@ -15,11 +15,9 @@ namespace fullvk
 		/// <param name="CaptchaImageURL">Ссылка на картинку</param>
 		public static string EnterCaptcha(string CaptchaImageURL)
 		{
-			Console.Clear();
+			Captcha.Print(CaptchaImageURL);
 
-			PrintCaptcha.start(CaptchaImageURL);
-
-			TextConsole.PrintConsole.Print($"{TextConsole.Tab()}Для пропуска введите пустую строку.", TextConsole.MenuType.Back);
+			TextConsole.PrintConsole.Print($"{TextConsole.Tab()}", TextConsole.MenuType.Back);
 			TextConsole.PrintConsole.Print("Введите код с картинки: ", TextConsole.MenuType.Input);
 
 			string capchaAnser = Console.ReadLine();
@@ -30,13 +28,13 @@ namespace fullvk
 			return capchaAnser;
 		}
 
-		private class PrintCaptcha
+		private class Captcha
 		{
-			public static void start(string url)
+			public static void Print(string url)
 			{
-				TextConsole.PrintConsole.Print("Введите captcha", TextConsole.MenuType.Header);
+				TextConsole.PrintConsole.Header("Введите captcha", "Для пропуска введите пустую строку.");
 
-				Point location = new Point(0, Console.CursorTop);
+				Point location = new Point(0, Console.CursorTop + 2);
 				Size imageSize = new Size(30, 10); // desired image size in characters
 
 				// draw some placeholders

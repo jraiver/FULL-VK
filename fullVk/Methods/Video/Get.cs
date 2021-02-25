@@ -126,15 +126,8 @@ namespace fullvk.Methods.Video
 
 			string nextFrom = "";
 
-			var Attachments = api.Messages.GetHistoryAttachments(
-				new MessagesGetHistoryAttachmentsParams()
-				{
-					PeerId = userID,
-					MediaType = MediaType.Video,
-					Fields = new List<string>() { "first_name" }
-				},
-				out nextFrom
-			);
+			var Attachments = Dialogs.Get.GetDialogsAttachments(api, HeaderName, MediaType.Video);
+
 			ChoiseMedia.Media[] AttachmentsList = new ChoiseMedia.Media[0];
 
 			for (int i = 0; i < Attachments.Count; i++)

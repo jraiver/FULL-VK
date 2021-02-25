@@ -26,14 +26,17 @@ namespace fullvk.Methods.Dialogs
 			{
 				var menuList = new List<string>()
 				{
-					"Скачать изображения"
+					"Изображения"/*, "Голосовые сообщения"*/
 				};
 				int pos = gMenu.Menu(menuList.ToList(), HeaderName);
 
 				switch (pos)
 				{
 					case 1:
-						GetImages(api, HeaderName);
+						Get.GetImages(api, HeaderName);
+						break;
+					case 2:
+					//	Get.GetVoiceMessages(api, HeaderName);
 						break;
 					case -1:
 						return;
@@ -43,9 +46,5 @@ namespace fullvk.Methods.Dialogs
 
 		}
 
-		static void GetImages(VkApi api, string HeaderName)
-		{
-			Get.GetDialogsList(api, HeaderName);
-		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace CptchCaptchaSolving
 {
@@ -13,7 +14,8 @@ namespace CptchCaptchaSolving
 		
 		public void CaptchaIsFalse()
 		{
-			Console.WriteLine("Последняя капча была распознана неверно");
+			Console.WriteLine("Капча введена неверно");
+			Thread.Sleep(500);
 		}
 	}
 }
