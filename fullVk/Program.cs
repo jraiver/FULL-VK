@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using VkNet;
+using VkNet.Model;
+using VkNet.Utils;
+using Application = System.Windows.Forms.Application;
 
 namespace fullvk
 {
@@ -34,6 +37,7 @@ namespace fullvk
 		[STAThread]
 		static void Main()
 		{
+
 			Console.Title = Application.ProductName;
 			CenterScreen();
 

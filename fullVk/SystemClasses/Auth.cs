@@ -23,7 +23,7 @@ namespace fullvk.SystemClasses
 			string Header = "Авторизация";
 
 			PrintConsole.Header(Header);
-			
+
 			while (true)
 			{
 				PrintConsole.Header(Header);
@@ -62,7 +62,7 @@ namespace fullvk.SystemClasses
 				if (password != null && password.Length > 0)
 					break;
 			}
-		
+
 			Console.WriteLine();
 			Authorization(login, password);
 			return true;
@@ -83,7 +83,7 @@ namespace fullvk.SystemClasses
 			service.AddSingleton<ICaptchaSolver, CptchCaptchaSolver>();
 			VkApi vkApi = new VkApi(service);
 
-			Retry:
+		Retry:
 			try
 			{
 				vkApi.Authorize(new ApiAuthParams
@@ -126,7 +126,7 @@ namespace fullvk.SystemClasses
 			AuthSeccesfull(vkApi);
 
 			PrintConsole.Header(Header);
-			
+
 			PrintConsole.Print("Авторизация прошла успешно", MenuType.InfoHeader);
 			BackLine.Continue();
 
@@ -148,7 +148,7 @@ namespace fullvk.SystemClasses
 
 			string key2fa;
 
-			Retry:
+		Retry:
 			try
 			{
 				PrintConsole.Header(Header);
@@ -185,7 +185,7 @@ namespace fullvk.SystemClasses
 		/// </summary>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public static VkApi AuthByToken(string token)
+		public static VkApi AuthByToken(User user)
 		{
 			var services = new ServiceCollection();
 
@@ -194,14 +194,15 @@ namespace fullvk.SystemClasses
 
 			VkApi vkApi = new VkApi(services);
 
-			if (token != null)
+			if (user.GetToken() != null)
 			{
 				vkApi.Authorize(new ApiAuthParams
 				{
-					AccessToken = token
+					AccessToken = user.GetToken()
 				});
 
-				vkApi.UserId = GlobalFunctions.GetIdNet(vkApi);
+				vkApi.UserId = GlobalFunctions.GetIdNet(vkApi, user.GetName());
+
 				if (vkApi.UserId == null)
 					return null;
 			}

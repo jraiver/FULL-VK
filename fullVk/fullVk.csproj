@@ -216,7 +216,7 @@
     <Compile Include="Menu\MainMenu.cs" />
     <Compile Include="Menu\MenuProfiles.cs" />
     <Compile Include="Methods\All\AnyData.cs" />
-    <Compile Include="Methods\All\GetConversationID.cs" />
+    <Compile Include="Methods\Dialogs\GetConversationID.cs" />
     <Compile Include="Methods\Dialogs\Get.cs" />
     <Compile Include="Methods\Dialogs\Menu.cs" />
     <Compile Include="Methods\FindPosts\FindPosts.cs" />
@@ -242,7 +242,6 @@
     <Compile Include="SystemClasses\CptchCaptchaSolving.cs" />
     <Compile Include="SystemClasses\LoadSave.cs" />
     <Compile Include="SystemClasses\MainData.cs" />
-    <Compile Include="SystemClasses\CheckErrorAPI.cs" />
     <Compile Include="Methods\All\Classes.cs" />
     <Compile Include="Methods\Other\WhereIsFrom.cs" />
     <Compile Include="Program.cs" />

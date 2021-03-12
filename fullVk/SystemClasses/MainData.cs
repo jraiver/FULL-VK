@@ -45,7 +45,7 @@ namespace fullvk
 
 				if (!LChoise.ContainsKey(url.Key))
 					LChoise.Add(url.Key, url.Value);
-				
+
 				else
 				{
 					LChoise.Remove(url.Key);
@@ -101,12 +101,11 @@ namespace fullvk
 			/// <summary>
 			/// Перезаписать всех пользователей
 			/// </summary>
-			public static void RewriteUsers(User[] usrs, bool load = false)
+			public static void RewriteUsers(User[] usrs)
 			{
 				UsersList = usrs;
 
-				if (!load)
-					LoadSave.WriteUsers();
+				LoadSave.WriteUsers();
 			}
 
 			/// <summary>
@@ -140,8 +139,8 @@ namespace fullvk
 		/// </summary>
 		public static int ChoiseProfile()
 		{
-			Start:
-			if ( Profiles.Count() == 0)
+		Start:
+			if (Profiles.Count() == 0)
 			{
 				Auth.Login();
 				return 0;
@@ -149,7 +148,7 @@ namespace fullvk
 
 			else
 			{
-				var menuList = new List<string>() ;
+				var menuList = new List<string>();
 
 				for (int i = 0; i < Profiles.Count(); i++)
 				{
@@ -158,7 +157,7 @@ namespace fullvk
 				}
 
 				menuList.Add("Добавить профиль");
-			
+
 				int pos = gMenu.Menu(menuList, "Для дальнейшей работы выберите профиль");
 
 				if (pos > 0)
@@ -200,7 +199,7 @@ namespace fullvk
 			_token = token;
 			_api = api;
 		}
-		
+
 		int GetUserId()
 		{
 			User[] list = MainData.Profiles.GetAllUser();
@@ -221,7 +220,7 @@ namespace fullvk
 		public void SetId(string id) => _id = id;
 
 		public void SetAPI(VkApi api) => _api = api;
-		
+
 		public void Delete()
 		{
 			User[] list = MainData.Profiles.GetAllUser();
@@ -252,11 +251,11 @@ namespace fullvk
 			User user = Clone() as User;
 			user._id = "0";
 			user._api = null;
-			return new User(null,fName: Crypt.EncryptStringAES(user._fName, key), 
-				lName: Crypt.EncryptStringAES(user._lName, key), 
-				Crypt.EncryptStringAES(user._token, key), 
+			return new User(null, fName: Crypt.EncryptStringAES(user._fName, key),
+				lName: Crypt.EncryptStringAES(user._lName, key),
+				Crypt.EncryptStringAES(user._token, key),
 				Crypt.EncryptStringAES(user._id, key)
-			);;
+			); ;
 
 		}
 
@@ -269,7 +268,7 @@ namespace fullvk
 		{
 			User user = Clone() as User;
 
-			return new User(null,Crypt.DecryptStringAES(user._fName, key), 
+			return new User(null, Crypt.DecryptStringAES(user._fName, key),
 				Crypt.DecryptStringAES(user._lName, key),
 				Crypt.DecryptStringAES(user._token, key),
 				Crypt.DecryptStringAES(user._id, key)
@@ -305,21 +304,21 @@ namespace fullvk
 		/// </summary>
 		/// <returns>VkApi</returns>
 		public VkApi GetApi() => _api;
-		
+
 		#region Var
 
 		[JsonProperty]
 		string _id { get; set; }
-		
+
 		[JsonProperty]
 		string _fName { get; set; }
-		
+
 		[JsonProperty]
 		string _lName { get; set; }
-		
+
 		[JsonProperty]
 		string _token { get; set; }
-		
+
 		VkApi _api { get; set; }
 
 		#endregion

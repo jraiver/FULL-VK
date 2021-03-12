@@ -30,9 +30,9 @@ namespace fullvk.Methods
 			string HeaderName = "Поиск постов пользователя";
 			VkApi api = Profiles.GetUser(profileNum).GetApi();
 
-			long? id ;
+			long? id;
 
-			long? userId ;
+			long? userId;
 
 			while (true)
 			{
@@ -82,7 +82,7 @@ namespace fullvk.Methods
 				cts = new CancellationTokenSource();
 				STOP = Task.Run(() => General.Cancel(cts), cts.Token);
 
-				for (;;)
+				for (; ; )
 				{
 					cts.Token.ThrowIfCancellationRequested();
 					PrintConsole.Header(HeaderName, "Для отмены нажмите[SPACE]");
@@ -110,7 +110,7 @@ namespace fullvk.Methods
 							//FoundPosts += $"https://vk.com/wall{id}_{Walls.WallPosts[h].Id}\n";
 
 							data.postUrl = $"https://vk.com/wall{id}_{Walls.WallPosts[h].Id}";
-				
+
 							data.text = Walls.WallPosts[h].Text;
 							data.date = Walls.WallPosts[h].Date.ToString();
 							FoundPosts += GetPostHtml(data);
@@ -122,40 +122,40 @@ namespace fullvk.Methods
 
 					offset += 100;
 
-					}
+				}
 
+				HeaderName = $"Результат поиска постов {Whois}";
+				PrintConsole.Header(HeaderName);
+
+				PrintConsole.Print($"Найдено {found} постов.", MenuType.InfoHeader);
+				if (found > 0)
+					SaveResult(api, userId, id, FoundPosts);
+
+				BackLine.Continue();
+			}
+
+			catch (Exception ex)
+			{
+
+				if (cts.Token.CanBeCanceled)
+				{
 					HeaderName = $"Результат поиска постов {Whois}";
 					PrintConsole.Header(HeaderName);
-
+					PrintConsole.Print("Выполнена остановка поиска.", MenuType.Warning);
 					PrintConsole.Print($"Найдено {found} постов.", MenuType.InfoHeader);
 					if (found > 0)
 						SaveResult(api, userId, id, FoundPosts);
-
 					BackLine.Continue();
 				}
-
-				catch (Exception ex)
-				{
-					
-					if (cts.Token.CanBeCanceled)
-					{
-						HeaderName = $"Результат поиска постов {Whois}";
-						PrintConsole.Header(HeaderName);
-						PrintConsole.Print("Выполнена остановка поиска.", MenuType.Warning);
-						PrintConsole.Print($"Найдено {found} постов.", MenuType.InfoHeader);
-						if (found > 0)
-							SaveResult(api, userId, id, FoundPosts);
-						BackLine.Continue();
-					}
-				}
 			}
+		}
 
 		static void SaveResult(VkApi api, long? userId, long? id, string FoundPosts)
 		{
 			string InsidePath =
 				$"[{DateTime.Today.Date.Day}.{DateTime.Today.Date.Month}.{DateTime.Today.Date.Year}] {GlobalFunctions.WhoIs(api, userId)} в {GlobalFunctions.WhoIs(api, id)}";
 
-			char[] blockChar = {'\\', '/', ':', '*', '?', '<', '>', '|', '"'};
+			char[] blockChar = { '\\', '/', ':', '*', '?', '<', '>', '|', '"' };
 
 			for (int i = 0; i < blockChar.Length; i++)
 			{
@@ -173,7 +173,7 @@ namespace fullvk.Methods
 			}
 			path += $"{InsidePath}.html";
 
-			
+
 
 			using (StreamWriter sw = File.CreateText(path))
 			{
@@ -185,7 +185,7 @@ namespace fullvk.Methods
 
 		static WallPostData GetMoreInfoFromPost(Post wall, long? userId, VkApi api)
 		{
-			var user = api.Users.Get(new List<long>() {(long) userId}, ProfileFields.Photo100);
+			var user = api.Users.Get(new List<long>() { (long)userId }, ProfileFields.Photo100);
 			WallPostData data = new WallPostData()
 			{
 				author = user[0].FirstName + " " + user[0].LastName,

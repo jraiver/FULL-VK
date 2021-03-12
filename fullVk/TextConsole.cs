@@ -59,7 +59,6 @@ namespace fullvk
 						break;
 					case MenuType.Header:
 						Console.Clear();
-
 						int newCount = 0;
 						if (Console.WindowWidth - message.Length > 0)
 						{
@@ -179,30 +178,6 @@ namespace fullvk
 				tab += " ";
 
 			return tab;
-		}
-
-		public static bool Warning(string type)
-		{
-			Print:
-			PrintConsole.Print($"{Tab()}[1] - Да", MenuType.Warning);
-			PrintConsole.Print($"[0] - Назад", MenuType.Back);
-
-			PrintConsole.Print($" Вы дейстительно хотите {type} ?: ", MenuType.Warning);
-			BackLine.Back(28 + type.Length);
-			switch (Console.ReadKey().KeyChar)
-			{
-				case '1':
-					return true;
-				case '0':
-					return false;
-				default:
-					BackLine.Clear();
-					BackLine.Clear();
-					BackLine.Clear();
-					BackLine.Clear();
-					goto Print;
-
-			}
 		}
 	}
 }

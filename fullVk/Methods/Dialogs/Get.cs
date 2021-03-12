@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using VkNet;
 using VkNet.Enums.SafetyEnums;
 using VkNet.Model;
-using VkNet.Model.Attachments;
 using VkNet.Model.RequestParams;
 
 namespace fullvk.Methods.Dialogs
@@ -27,7 +26,7 @@ namespace fullvk.Methods.Dialogs
 			var Attachments = api.Messages.GetHistoryAttachments(
 				new MessagesGetHistoryAttachmentsParams()
 				{
-					PeerId = ConvID, MediaType = type
+					PeerId = ConvID, MediaType = type, Count = 200
 				},
 				out nextFrom
 			);

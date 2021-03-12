@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Mime;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -119,16 +120,20 @@ namespace fullvk.Methods.All
 								Console.ResetColor();
 								SpeedMeter = new Stopwatch();
 								SpeedMeter.Start();
+								string name = FileNameTS(list[i]);
+								name = FixInvalidChars(name);
+
 								if (i ==  list.Length)
 									return;
 								downloader.DownloadProgressChanged +=
 									delegate(object sender, DownloadProgressChangedEventArgs e)
 									{
-										Downloader_DownloadProgressChanged(sender, e, FileNameTS(list[i]),
+										Downloader_DownloadProgressChanged(sender, e, name,
 											$"[{i}/{list.Length}]", cancellationToken);
 									};
 
-								FileFullPath = $"{Path.Combine(folder.SelectedPath, FileNameTS(list[i]))}";
+
+								FileFullPath = $"{Path.Combine(folder.SelectedPath, name)}";
 
 								if (File.Exists(FileFullPath + $".{type}"))
 								{
@@ -149,6 +154,7 @@ namespace fullvk.Methods.All
 								{
 									if (list[i].url == null)
 										continue;
+
 
 									await downloader.DownloadFileTaskAsync(new Uri(list[i].url), FileFullPath);
 									//cancellationToken.ThrowIfCancellationRequested();
@@ -214,6 +220,29 @@ namespace fullvk.Methods.All
 			
 		}
 
+		private static string FixInvalidChars(string text)
+		{
+			if (text == null)
+			{
+				throw new ArgumentNullException("text");
+			}
+			if (text.Length <= 0)
+			{
+				return text;
+			}
+
+
+			foreach (char badChar in Path.GetInvalidPathChars())
+			{
+				text = text.Replace(badChar, '_');
+			}
+
+			foreach (char badChar in new[] { '?', '\\', '/', ':', '"', '*', '>', '<', '|' })
+			{
+				text = text.Replace(badChar, '_');
+			}
+			return text;
+		}
 
 		static void Downloader_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
 		{

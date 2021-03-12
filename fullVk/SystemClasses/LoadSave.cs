@@ -7,6 +7,8 @@ using System.Linq;
 using System.Management;
 using System.Text;
 using System.Windows.Forms;
+using VkNet.Model.RequestParams;
+using VkNet.Utils;
 using static fullvk.MainData;
 
 namespace fullvk.SystemClasses
@@ -24,13 +26,19 @@ namespace fullvk.SystemClasses
 		{
 			try
 			{
-				User[] toWrite = new User[Profiles.Count()];
+				User[] toWrite = new User[0];
 
+					
 				for (int i = 0; i < Profiles.Count(); i++)
 				{
-					toWrite[i] = Profiles.GetUser(i).GetProtectedUser(cryptPass);
+					var user = Profiles.GetUser(i);
+					if (user != null)
+					{
+						Array.Resize(ref toWrite, toWrite.Length + 1);
+						toWrite[toWrite.Length - 1] = user.GetProtectedUser(cryptPass);
+					}
 				}
-
+				
 				var FavoriteData = JsonConvert.SerializeObject(toWrite, Formatting.None, new JsonSerializerSettings
 				{
 					NullValueHandling = NullValueHandling.Ignore
@@ -48,19 +56,11 @@ namespace fullvk.SystemClasses
 
 		}
 
-		class tUser
-		{
-			private string _fName { get; set; }
-			private string _lName { get; set; }
-			private string _id { get; set; }
-			private string _token { get; set; }
-		}
-		
 		/// <summary>
 		/// Загрузить пользователей
 		/// </summary>
 		/// <returns></returns>
-		public static bool ReadUsers(bool load = true)
+		public static bool ReadUsers()
 		{
 			if (!File.Exists(path))
 			{
@@ -71,7 +71,7 @@ namespace fullvk.SystemClasses
 
 			var fl = File.ReadAllText(path, Encoding.UTF8);
 			var Users = JsonConvert.DeserializeObject<User[]>(File.ReadAllText(path, Encoding.UTF8));
-			
+
 			if (Users == null)
 			{
 				Auth.Login();
@@ -84,16 +84,16 @@ namespace fullvk.SystemClasses
 				{
 					Users[i] = Users[i].GetDecryptUser(cryptPass);
 
-					Users[i].SetAPI(Auth.AuthByToken(Users[i].GetToken()));
-					Users[i].SetId(Users[i].GetApi().UserId.ToString());
-
-					if (Users[i].GetApi() == null)
+					Users[i].SetAPI(Auth.AuthByToken(Users[i]));
+					if (Users[i].GetApi() != null)
 					{
-						Console.WriteLine("error read");
+						Users[i].SetId(Users[i].GetApi().UserId.ToString());
 					}
+					else Users[i] = null;
+
 				}
 
-				Profiles.RewriteUsers(Users, load);
+				Profiles.RewriteUsers(Users);
 			}
 
 			return true;
@@ -117,8 +117,8 @@ namespace fullvk.SystemClasses
 							data.LastChoise[i].name), true);
 				}
 			}
-			
-			ReadUsers(load);
+
+			ReadUsers();
 			return true;
 		}
 
@@ -134,7 +134,7 @@ namespace fullvk.SystemClasses
 			toWrite.LastChoise = new Classes.Data.LastChoiseClass[LastChoise.Count()];
 			var urls = LastChoise.GetAll();
 
-			for (int i = 0; i < urls.Count;i++)
+			for (int i = 0; i < urls.Count; i++)
 				toWrite.LastChoise[i] = new Classes.Data.LastChoiseClass()
 				{
 					url = urls.ElementAt(i).Key,

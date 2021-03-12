@@ -5,7 +5,7 @@ using VkNet;
 using VkNet.Enums.SafetyEnums;
 using VkNet.Model.RequestParams;
 
-namespace fullvk.Methods.All
+namespace fullvk.Methods.Dialogs
 {
 	class GetConversationID
 	{

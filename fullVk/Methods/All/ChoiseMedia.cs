@@ -14,6 +14,7 @@ namespace fullvk.Methods.All
 			public bool selected { get; set; }
 			public object other { get; set; }
 			public string subName { get; set; }
+			public string date { get; set; }
 
 			/// <summary>
 			/// Клонировать
@@ -184,9 +185,10 @@ namespace fullvk.Methods.All
 		{
 			if (media.subName == null)
 				media.subName = string.Empty;
-
+			
 			string name = $"{media.name} {media.subName}";
-
+			if (media.date != null)
+				name += $" [{media.date}]";
 			if (name.Length < Console.WindowWidth / 4 * 3)
 				return name + $"[{media.duration}]";
 			else

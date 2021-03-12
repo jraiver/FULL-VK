@@ -1,5 +1,4 @@
-﻿using fullvk.Methods.All;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
@@ -9,6 +8,8 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+using fullvk.Methods.All;
+using fullvk.Methods.Dialogs;
 using VkNet;
 using VkNet.Enums.SafetyEnums;
 using VkNet.Model.Attachments;
@@ -31,7 +32,7 @@ namespace fullvk.Methods.Music
 		{
 			public string name { get; set; }
 			public bool? HQ { get; set; }
-			public string duration { get; set; }
+			new public string duration { get; set; }
 
 		}
 
@@ -261,12 +262,12 @@ namespace fullvk.Methods.Music
 		{
 			var json = GetById(api, item.id);
 
-			var data = JsonConvert.DeserializeObject<PopularMusic.Rootobject>(json);
+			var data = JsonConvert.DeserializeObject<PopularMusic.Response>(json);
 
-			if (data.response.block.playlists != null)
-				MusicMenu.PlayListMenu(data.response.block.playlists, data.response.block.title, api);
+			if (data.block.playlists != null)
+				MusicMenu.PlayListMenu(data.block.playlists, data.block.title, api);
 			else
-				return ToList(data.response.block.audios);
+				return ToList(data.block.audios);
 
 			return null;
 		}
@@ -281,17 +282,21 @@ namespace fullvk.Methods.Music
 		/// <returns></returns>
 		static string GetById(VkApi api, string id, long count = 1000)
 		{
-			var parameters = new VkParameters();
-			parameters.Add("count", count);
-			parameters.Add("extended", 1);
-			parameters.Add("block_id", id);
-			parameters.Add("https", 1);
-			parameters.Add("start_from", "");
-			parameters.Add("lang", "ru");
-			parameters.Add("access_token", api.Token);
-			parameters.Add("v", "5.87");
 
-			return api.Invoke("audio.getCatalogBlockById", parameters);
+			var response = api.Call("audio.getCatalogBlockById", new VkParameters()
+			{
+				{"count", count},
+				{"extended", 1},
+				{"block_id", id},
+				{"https", 1},
+				{"start_from", "count"},
+				{"lang", "ru"},
+				{"access_token", api.Token},
+				{"v", "5.87"}
+			});
+
+			return response.ToString();
+
 		}
 
 		/// <summary>
@@ -416,7 +421,7 @@ namespace fullvk.Methods.Music
 			}
 			catch (Exception ex)
 			{
-				if (ex.GetType().FullName.IndexOf("VkNet.Exception.CannotBlacklistYourselfException") > -1)
+				if (ex.GetType() == typeof(VkNet.Exception.CannotBlacklistYourselfException))
 				{
 					TextConsole.PrintConsole.Print($"Не удаётся получить доступ к плейлисту: [{pl.Title}]", TextConsole.MenuType.Warning);
 				}
@@ -453,7 +458,7 @@ namespace fullvk.Methods.Music
 
 				int offset = 0;
 
-				VkNet.Model.Attachments.Audio[] trackList = new VkNet.Model.Attachments.Audio[0];
+				Audio[] trackList = new Audio[0];
 
 				while (true)
 				{
@@ -536,8 +541,6 @@ namespace fullvk.Methods.Music
 			TextConsole.PrintConsole.Header(HeaderName);
 			TextConsole.PrintConsole.Print("Получаем список аудиозаписей...",
 				TextConsole.MenuType.InfoHeader);
-
-			string nextFrom = "";
 
 			var Attachments = Dialogs.Get.GetDialogsAttachments(api, HeaderName, MediaType.Audio);
 			ChoiseMedia.Media[] AttachmentsList = new ChoiseMedia.Media[0];

@@ -71,7 +71,7 @@ namespace fullvk.Methods.Video
 			ChoiseMedia.Media[] selected = new ChoiseMedia.Media[0];
 			while (true)
 			{
-				var menuList = new List<string>() {"Все", "Выбрать"};
+				var menuList = new List<string>() { "Все", "Выбрать" };
 				int pos = gMenu.Menu(menuList, $"Видеозаписи {resource}");
 
 				ChoiseMedia.Media[] copy = new ChoiseMedia.Media[media.Length];
@@ -116,10 +116,6 @@ namespace fullvk.Methods.Video
 		/// <param name="HeaderName"></param>
 		public static ChoiseMedia.Media[] FromMessage(VkApi api, string HeaderName)
 		{
-			long userID = GetConversationID.Get(api, HeaderName);
-			if (userID < 0)
-				return null;
-
 			TextConsole.PrintConsole.Header(HeaderName);
 			TextConsole.PrintConsole.Print("Получаем список видеозаписей...",
 				TextConsole.MenuType.InfoHeader);
@@ -132,17 +128,22 @@ namespace fullvk.Methods.Video
 
 			for (int i = 0; i < Attachments.Count; i++)
 			{
+				var attach = Attachments[i].Attachment.Instance as VkNet.Model.Attachments.Video;
+				string url = GetMaxQuality(attach.Files);
+				if (url == null)
+					continue;
+
 				Array.Resize(ref AttachmentsList, AttachmentsList.Length + 1);
+				if (attach == null)
+					continue;
+				
 				AttachmentsList[AttachmentsList.Length - 1] = new ChoiseMedia.Media()
 				{
-					url = Get.GetMaxQuality((Attachments[i].Attachment.Instance as VkNet.Model.Attachments.Video).Files),
-					duration = GlobalFunctions.CurrentDuration((int)(Attachments[i].Attachment.Instance as VkNet.Model.Attachments.Video).Duration),
-					name = (Attachments[i].Attachment.Instance as VkNet.Model.Attachments.Video).Title
+					url = url,
+					duration = GlobalFunctions.CurrentDuration((int)attach.Duration),
+					name = attach.Title,
+					date = attach.Date.Value.ToString("dd/MM/yyyy hh:mm tt")
 				};
-
-				if (AttachmentsList[AttachmentsList.Length - 1].url == null)
-					Array.Resize(ref AttachmentsList, AttachmentsList.Length - 1);
-
 			}
 
 			var list = ChoiseMedia.PrintList(AttachmentsList);

@@ -5,11 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Flurl.Util;
 using VkNet;
 using VkNet.Enums.SafetyEnums;
-using VkNet.Model;
-using VkNet.Model.RequestParams;
 using static fullvk.MainData;
 using static fullvk.TextConsole;
 
@@ -85,6 +82,7 @@ namespace fullvk.Methods.Music
 
 						break;
 					case 2:
+						PrintConsole.Header(HeaderName, "Получаем категории");
 						var response = Get.GetCategoriesInRecommended(api).response;
 
 						//Удаляем ненужные категории
@@ -121,6 +119,7 @@ namespace fullvk.Methods.Music
 										switch (cPos)
 										{
 											default:
+												PrintConsole.Header("Получаем данные");
 												var result = Get.GetTrackListFromRec(api, response.items[cPos - 1]);
 
 												if (result != null && result.Length > 0)
@@ -192,7 +191,7 @@ namespace fullvk.Methods.Music
 						}
 					case 3:
 					GetFromUrl:
-						PrintConsole.Header(HeaderName);
+						PrintConsole.Header(HeaderName, "Получаем список категорий");
 						PrintConsole.Print("[0] - Назад", MenuType.Back);
 						PrintConsole.Print($"Введите ссылку:  ", MenuType.Input);
 

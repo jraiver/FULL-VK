@@ -167,14 +167,30 @@ namespace fullvk
 		/// <summary>
 		/// Получение ID профиля после авторизации через VK.NET с токеном
 		/// </summary>
-		public static long? GetIdNet(VkNet.VkApi api)
+		public static long? GetIdNet(VkApi api, string name)
 		{
 			WebClient client = new WebClient() { Encoding = Encoding.UTF8 };
 			var response = client.DownloadString($"https://api.vk.com/method/users.get?access_token={api.Token}&v=5.101");
+			if (response.IndexOf("error") > -1)
+			{
+				try
+				{
+					VkNet.Utils.VkErrors.IfErrorThrowException(response.ToString());
+				}
+				catch (Exception ex)
+				{
+					PrintConsole.Header(name, ex.Message);
+					BackLine.Continue();
+				}
 
-			var user = JsonConvert.DeserializeObject<VkNet.Model.User>(JObject.Parse(response)["response"][0].ToString());
-
-			return user.Id;
+				return null;
+			}
+			else
+			{
+				var user = JsonConvert.DeserializeObject<VkNet.Model.User>(JObject.Parse(response)["response"][0].ToString());
+				return user.Id;
+			}
+			
 		}
 
 		/// <summary>
