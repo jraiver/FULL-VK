@@ -32,7 +32,7 @@ namespace fullvk.Methods.Music
 			VkApi api = Profiles.GetUser(profileNum).GetApi();
 			while (true)
 			{
-				var menuList = new List<string>() { "Моя музыка", "Рекомендации", "Указать ссылку", "Последние", "Из сообщений", "Со стены" };
+				var menuList = new List<string>() { "Моя музыка", "Рекомендации", "Указать ссылку", "Последние", "Из сообщений", "Со стены", "По Вашим предпочтениям" };
 				int pos = gMenu.Menu(menuList.ToList(), HeaderName);
 
 				switch (pos)
@@ -176,7 +176,7 @@ namespace fullvk.Methods.Music
 												{
 													api = api,
 													audios = Get.GetAudio(api, response.profiles[cPos - 1].id),
-													SubName = $"{response.profiles[cPos - 1].first_name} {response.profiles[cPos - 1].last_name}" ,
+													SubName = $"{response.profiles[cPos - 1].first_name} {response.profiles[cPos - 1].last_name}",
 													id = response.profiles[cPos - 1].id
 												});
 
@@ -237,6 +237,42 @@ namespace fullvk.Methods.Music
 						break;
 					case 6:
 						GetDataFromBoard(api);
+						break;
+					case 7:
+						var daily = new List<string>()
+						{
+							$"Дневной плейлист", $"Недельный плейлист"
+						};
+						int dpos = gMenu.Menu(daily, "По Вашим предпочтениям");
+
+						switch (dpos)
+						{
+							case 1:
+								Prepare(new AnyData.Data()
+								{
+									api = api,
+									audios = Get.GetList(new AnyData.Data() { api = api, type = Get.Type.Daily}),
+									SubName = GlobalFunctions.WhoIs(api, null, NameCase.Gen),
+									type = Get.Type.Daily,
+									id = api.UserId
+								});
+								break;
+
+							case 2:
+								Prepare(new AnyData.Data()
+								{
+									api = api,
+									audios = Get.GetList(new AnyData.Data() { api = api, type = Get.Type.Weekly }),
+									SubName = GlobalFunctions.WhoIs(api, null, NameCase.Gen),
+									type = Get.Type.Weekly,
+									id = api.UserId
+								});
+								break;
+
+							case -1:
+								return;
+
+						}
 						break;
 					case -1:
 						return;

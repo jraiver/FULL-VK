@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -32,12 +34,18 @@ namespace fullvk.Methods.Music
 					}
 					else
 					{
-						var user = data.api.Users.Get(new List<long>() {long.Parse(data.id.ToString())}).FirstOrDefault();
+						var user = data.api.Users.Get(new List<long>() { long.Parse(data.id.ToString()) }).FirstOrDefault();
 						name = $"[PL] {user.FirstName} {user.LastName}";
 					}
 					break;
 				case Music.Get.Type.Recommendation:
 					name = $"[PL] {data.SubName} ";
+					break;
+				case Music.Get.Type.Daily:
+					name = $"Дневная подборка {DateTime.Today.ToShortDateString()}";
+					break;
+				case Music.Get.Type.Weekly:
+					name = $"Недельная подборка {DateTime.Today.ToShortDateString()}";
 					break;
 			}
 
@@ -46,9 +54,27 @@ namespace fullvk.Methods.Music
 
 			for (int i = 0; i < mediaListMedia.Length; i++)
 			{
-				PlayList +=
-					$"\n#EXTINF:216,{mediaListMedia[i].name}\n{mediaListMedia[i].url}";
+				try
+				{
+					string seconds = String.Empty;
+					var prep = mediaListMedia[i].duration.Split(':');
+
+					if (prep.Length == 2)
+						seconds = $"00:{mediaListMedia[i].duration}";
+					else seconds = mediaListMedia[i].duration;
+
+					var sec = (int)DateTime.Parse(seconds).TimeOfDay.TotalSeconds;
+
+					PlayList +=
+						$"\n#EXTINF:{sec},{mediaListMedia[i].name}\n{mediaListMedia[i].url}";
+				}
+				catch (Exception ex)
+				{
+
+				}
 			}
+
+
 
 			if (mediaListMedia.Length == 0)
 			{

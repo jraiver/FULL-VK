@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 using VkNet;
 using VkNet.Model;
+using VkNet.Model.Attachments;
 using VkNet.Utils;
 using Application = System.Windows.Forms.Application;
 
@@ -47,6 +49,7 @@ namespace fullvk
 
 			//Methods.Dialogs.Menu.View();
 		}
+
 
 		static void CenterScreen()
 		{

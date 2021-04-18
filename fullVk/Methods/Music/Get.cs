@@ -1,15 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using fullvk.Methods.All;
+using fullvk.Methods.Dialogs;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Printing;
 using System.Linq;
-using System.Management;
-using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using fullvk.Methods.All;
-using fullvk.Methods.Dialogs;
 using VkNet;
 using VkNet.Enums.SafetyEnums;
 using VkNet.Model.Attachments;
@@ -25,8 +21,12 @@ namespace fullvk.Methods.Music
 			Profile,
 			Group,
 			Popular,
-			Recommendation
+			Recommendation,
+			Daily,
+			Weekly
+
 		}
+
 
 		public class Track : PopularMusic.Audio
 		{
@@ -49,6 +49,30 @@ namespace fullvk.Methods.Music
 			task.Wait();
 			return task.Result;
 		}
+
+		/// <summary>
+		/// Музыкальные подборки
+		/// </summary>
+		/// <param name="api"></param>
+		/// <param name="type"></param>
+		/// <returns></returns>
+		static Audio[] GetDailyRec(VkApi api, Type type)
+		{
+			int plId = -21;
+			if (type == Type.Weekly)
+				plId = -22;
+
+			var response = api.Call("execute.getPlaylist", new VkParameters()
+			{
+				{"id", plId},
+				{"access_token", api.Token},
+				{"owner_id", MainData.Profiles.GetUser(0).GetId()},
+				{"v", "5.150"}
+			});
+			return JsonConvert.DeserializeObject<DailyRec>(response.RawJson).response.audios;
+
+		}
+
 
 		/// <summary>
 		/// Музыка со стены
@@ -227,16 +251,35 @@ namespace fullvk.Methods.Music
 					if (rec == null)
 						return null;
 					return rec;
+				case Type.Daily:
+					var daily = GetDailyRec(data.api, Type.Daily);
+					TextConsole.PrintConsole.Print($"Получено {daily.Length} треков.\n",
+						TextConsole.MenuType.InfoHeader);
+
+					if (daily == null)
+						return null;
+
+					return ToList(daily);
+				case Type.Weekly:
+					var weekly = GetDailyRec(data.api, Type.Weekly);
+					TextConsole.PrintConsole.Print($"Получено {weekly.Length} треков.\n",
+						TextConsole.MenuType.InfoHeader);
+
+					if (weekly == null)
+						return null;
+
+					return ToList(weekly);
+
 			}
 
 			return null;
 		}
-		
+
 		/// <summary>
 		/// Получить категории
 		/// </summary>
 		/// <param name="api"></param>
-		public static PopularMusic.Rootobject GetCategoriesInRecommended(VkApi api)
+		public static PopularMusic GetCategoriesInRecommended(VkApi api)
 		{
 			var parameters = new VkParameters();
 			parameters.Add("v", "5.103");
@@ -249,7 +292,7 @@ namespace fullvk.Methods.Music
 
 			var resp = api.Invoke("audio.getCatalog", parameters);
 
-			return JsonConvert.DeserializeObject<PopularMusic.Rootobject>(resp);
+			return JsonConvert.DeserializeObject<PopularMusic>(resp);
 		}
 
 		/// <summary>
@@ -272,7 +315,7 @@ namespace fullvk.Methods.Music
 			return null;
 		}
 
-		
+
 		/// <summary>
 		/// Получить список аудиозаписей по ID каталога
 		/// </summary>
@@ -280,7 +323,7 @@ namespace fullvk.Methods.Music
 		/// <param name="id"></param>
 		/// <param name="count"></param>
 		/// <returns></returns>
-		static string GetById(VkApi api, string id, long count = 1000)
+		public static string GetById(VkApi api, string id, long count = 1000)
 		{
 
 			var response = api.Call("audio.getCatalogBlockById", new VkParameters()
@@ -343,7 +386,7 @@ namespace fullvk.Methods.Music
 					name = audios[i].Title,
 					artist = audios[i].Artist,
 					url = GetCurrentUrl(audios[i].Url),
-					duration = GlobalFunctions.CurrentDuration(audios[(int)i].Duration),
+					duration = GlobalFunctions.CurrentDuration(audios[i].Duration),
 					HQ = audios[i].IsHq,
 					id = audios[i].Id,
 					owner_id = audios[i].OwnerId

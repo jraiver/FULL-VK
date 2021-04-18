@@ -98,7 +98,8 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>fullvk.Program</StartupObject>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>vk_black_icon.ico</ApplicationIcon>
@@ -211,6 +212,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Captcha.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="GlobalFunctions.cs" />
     <Compile Include="Menu\gMenu.cs" />
     <Compile Include="Menu\MainMenu.cs" />
@@ -227,7 +229,7 @@
     </Compile>
     <Compile Include="Methods\Page\Backup.cs" />
     <Compile Include="Methods\Page\Clear.cs" />
-    <Compile Include="Methods\Music\ClassPopular.cs" />
+    <Compile Include="Methods\Music\Classes.cs" />
     <Compile Include="Methods\All\Download.cs" />
     <Compile Include="Methods\Music\Filter.cs" />
     <Compile Include="Methods\Music\Get.cs" />
