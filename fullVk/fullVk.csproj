@@ -99,8 +99,7 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>fullvk.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>vk_black_icon.ico</ApplicationIcon>
